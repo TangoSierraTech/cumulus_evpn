@@ -1,0 +1,29 @@
+---
+- name: provision spine 1
+  hosts: leaf1, leaf2, spine1, spine2
+  become: true
+#  connection: local
+  gather_facts: no
+  tasks:
+  - name: Copy over interfaces
+    copy: src=./flatfiles/{{inventory_hostname}}/interfaces dest=/etc/network/interfaces
+    notify: reload networking
+
+  - name: Copy over daemons
+    copy: src=./flatfiles/{{inventory_hostname}}/daemons dest=/etc/frr/daemons
+    notify: restart frr
+
+  - name: Copy over frr
+    copy: src=./flatfiles/{{inventory_hostname}}/frr.conf dest=/etc/frr/frr.conf
+    notify: reload frr
+
+  handlers:
+  - name: reload networking
+    shell: ifreload -a
+
+  - name: restart frr
+    service: name=frr state=restarted
+
+  - name: reload frr
+    service: name=frr state=reloaded
+

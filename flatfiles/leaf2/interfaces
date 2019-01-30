@@ -1,0 +1,84 @@
+auto lo
+iface lo inet loopback
+    address 10.255.255.12/32
+
+auto vagrant
+iface vagrant inet dhcp
+
+auto eth0
+iface eth0 inet dhcp
+
+auto swp1
+iface swp1
+
+auto swp2
+iface swp2
+
+auto swp3
+iface swp3
+
+auto swp4
+iface swp4
+
+auto swp5
+iface swp5
+
+auto swp6
+iface swp6
+
+auto swp49
+iface swp49
+
+auto swp50
+iface swp50
+
+auto swp51
+iface swp51
+
+auto swp52
+iface swp52
+
+######
+### Define VRF and L3VNI
+######
+auto RED
+iface RED
+    vrf-table auto
+
+auto SERVER02
+iface SERVER02
+    bond-slaves swp2 swp3
+    bond-mode balance-xor
+    bridge-access 10
+
+#####
+### Define bridge
+#####
+auto bridge
+iface bridge
+    bridge-ports SERVER02 VXLAN10
+    bridge-vids 10
+    bridge-vlan-aware yes
+
+
+#####
+### Define VXLAN interfaces
+#####
+auto VXLAN10
+iface VXLAN10
+    bridge-access 10
+    bridge-arp-nd-suppress on
+    bridge-learning off
+    mstpctl-bpduguard yes
+    mstpctl-portbpdufilter yes
+    vxlan-id 10010
+    vxlan-local-tunnelip 10.255.255.12
+
+auto vlan10
+iface vlan10
+    address 10.1.1.3/24
+    address-virtual 00:00:00:00:00:1a 10.1.1.1/24
+    vlan-id 10
+    vlan-raw-device bridge
+    vrf RED
+
